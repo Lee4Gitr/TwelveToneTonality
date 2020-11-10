@@ -2,7 +2,7 @@
 
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
+from setuptools._vendor.ordered_set import OrderedSet
 
 from Enums.Intervals import Interval
 
@@ -36,42 +36,26 @@ def invertRow(pitch_set):
 
 
 # Cyclical Sets - sets whose alternate elements unfold complementary cycles of a single interval
-
-
 def generateCyclicalSet(cycle_set):
     inversion = invertRow(cycle_set)
-    cyclical_set = []
+    cyclical_set = OrderedSet([])
 
     # Since each row contains all 12 pitch classes, we only need to iterate over the first half of each row
     for i in range(0, (len(cycle_set) // 2) + 1):
         cyclical_set.append(cycle_set[i])
         cyclical_set.append(inversion[i])
-    return cyclical_set
+    return cyclical_set.items
+
+
+def transpose(pitch_set, interval):
+    return list(map(lambda note: (note + interval) % 12, pitch_set))
 
 
 def findCognateSets(pitch_set):
-    pitch_set_items = pitch_set
-    inverted_set_items = invertRow(pitch_set)
+    inversion = invertRow(pitch_set)
+    t_7 = transpose(inversion, Interval.per5)
 
-    cognates = []
-    dyad_sum = ((pitch_set_items[0] - inverted_set_items[0]) % 12)
-    cognate_candidate = inverted_set_items
-    matrix = generateMatrix(pitch_set_items)
-
-    for tone_row in matrix:
-        findCognate(cognate_candidate, dyad_sum, inverted_set_items, tone_row, cognates)
-
-    return cognates
-
-
-def findCognate(cognate_candidate, dyad_sum, inverted_set_items, pitch_set_items, cognates):
-    for j in range(0, len(inverted_set_items)):
-        if (pitch_set_items[j] + cognate_candidate[j] % 12) != dyad_sum:
-            first = cognate_candidate.pop(0)
-            cognate_candidate.append(first)
-            continue
-    cognates.append({f'Dyad of sum {cognate_candidate[0] - pitch_set_items[0] % 12}': cognate_candidate})
-
+    return [t_7, pitch_set, inversion]
 
 # Inversionally related set forms that share a single series of dyads are termed "cognate" sets
 # def generateCognateSet(pitch_set, pitch_sum=Interval.oct):
@@ -83,7 +67,11 @@ def findCognate(cognate_candidate, dyad_sum, inverted_set_items, pitch_set_items
 
 if __name__ == '__main__':
     cycle7 = generateIntervalSet(Interval.per5)
-    print(generateMatrix(cycle7))
-    print(findCognateSets(cycle7))
+    # print(cycle7)
+    # print(invertRow(cycle7))
+    print(findCognateSets(generateCyclicalSet(cycle7)))
+    # print(list(map(lambda x: (x + 7) % 12, invertRow(cycle7))))
+    # print(generateMatrix(cycle7))
+    # print(findCognateSets(cycle7))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
