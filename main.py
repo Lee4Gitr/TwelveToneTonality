@@ -62,13 +62,13 @@ def generateDyadsOfParticularSum(pitch_set, dyad_sum):
     cognate = []
     transposition = transpose(inversion, 0)
     for i in range(0, len(inversion)):
-        if isCognateMethod(pitch_set, dyad_sum, transposition):
+        if isCognate(pitch_set, dyad_sum, transposition):
             cognate.append({f"Dyads of Sum {dyad_sum}": transposition})
         transposition = transpose(inversion, i)
     return cognate
 
 
-def isCognateMethod(pitch_set, dyad_sum, transposition):
+def isCognate(pitch_set, dyad_sum, transposition):
     for i in range(0, len(pitch_set)):
         if (pitch_set[i] + transposition[i]) % 12 != dyad_sum:
             return False
