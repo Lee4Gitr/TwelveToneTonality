@@ -2,6 +2,8 @@
 
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+from collections import OrderedDict
+
 from setuptools._vendor.ordered_set import OrderedSet
 
 from Enums.Intervals import Interval
@@ -51,27 +53,52 @@ def transpose(pitch_set, interval):
     return list(map(lambda note: (note + interval) % 12, pitch_set))
 
 
-def findCognateSets(pitch_set):
+def generateAllCognateSets(pitch_set):
+    """TODO"""
+
+
+def generateDyadsOfParticularSum(pitch_set, dyad_sum):
     inversion = invertRow(pitch_set)
-    t_7 = transpose(inversion, Interval.per5)
+    cognate = []
+    transposition = transpose(inversion, 0)
+    for i in range(0, len(inversion)):
+        if isCognateMethod(pitch_set, dyad_sum, transposition):
+            cognate.append({f"Dyads of Sum {dyad_sum}": transposition})
+        transposition = transpose(inversion, i)
+    return cognate
 
-    return [t_7, pitch_set, inversion]
 
-# Inversionally related set forms that share a single series of dyads are termed "cognate" sets
-# def generateCognateSet(pitch_set, pitch_sum=Interval.oct):
-#     cognate_set = OrderedSet([])
-#     for i in range(0, len(pitch_set)):
-#         cognate_set.append((pitch_sum - pitch_set[i]) % 12)
-#     return cognate_set
+def isCognateMethod(pitch_set, dyad_sum, transposition):
+    for i in range(0, len(pitch_set)):
+        if (pitch_set[i] + transposition[i]) % 12 != dyad_sum:
+            return False
+        return True
+
+
+def swapEveryTwoElements(pitch_set):
+    swapped_elements = pitch_set.copy()
+    for i in range(0, len(pitch_set), 2):
+        swapped_elements[i], swapped_elements[i + 1] = swapped_elements[i + 1], swapped_elements[i]
+    return swapped_elements
+
+
+def findAxisNoteDyads(pitch_set):
+    axis_dyads = OrderedDict()
+    for i in range(0, len(pitch_set)):
+        axis_dyads[pitch_set[i]] = [pitch_set[(i - 1) % 12], pitch_set[(i + 1) % 12]]
+    return axis_dyads
 
 
 if __name__ == '__main__':
     cycle7 = generateIntervalSet(Interval.per5)
     # print(cycle7)
     # print(invertRow(cycle7))
-    print(findCognateSets(generateCyclicalSet(cycle7)))
-    # print(list(map(lambda x: (x + 7) % 12, invertRow(cycle7))))
-    # print(generateMatrix(cycle7))
-    # print(findCognateSets(cycle7))
+    cyclicalSet = generateCyclicalSet(cycle7)
+    cycle7AxisDyads = findAxisNoteDyads(cyclicalSet)
+    print(cyclicalSet)
+    print(generateDyadsOfParticularSum(cyclicalSet, 7))
+    print(generateDyadsOfParticularSum(cyclicalSet, 5))
+    # for pitch in cyclicalSet:
+    #     print(pitch, cycle7AxisDyads[pitch])
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
