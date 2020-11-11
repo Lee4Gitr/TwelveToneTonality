@@ -53,19 +53,14 @@ def transpose(pitch_set, interval):
     return list(map(lambda note: (note + interval) % 12, pitch_set))
 
 
-def generateAllCognateSets(pitch_set):
-    """TODO"""
+def generateAllCognateSets(interval=Interval.per5):
+    cycle_7 = generateIntervalSet(interval)
+    cyclical_7_set = generateCyclicalSet(cycle_7)
 
-
-def generateDyadsOfParticularSum(pitch_set, dyad_sum):
-    inversion = invertRow(pitch_set)
-    cognate = []
-    transposition = transpose(inversion, 0)
-    for i in range(0, len(inversion)):
-        if isCognate(pitch_set, dyad_sum, transposition):
-            cognate.append({f"Dyads of Sum {dyad_sum}": transposition})
-        transposition = transpose(inversion, i)
-    return cognate
+    sets = []
+    for i in range(0, len(cycle_7)):
+        sets.append(generateDyadsOfParticularSum(cyclical_7_set, cycle_7[i]))
+    return sets
 
 
 def isCognate(pitch_set, dyad_sum, transposition):
@@ -73,6 +68,17 @@ def isCognate(pitch_set, dyad_sum, transposition):
         if (pitch_set[i] + transposition[i]) % 12 != dyad_sum:
             return False
         return True
+
+
+def generateDyadsOfParticularSum(pitch_set, dyad_sum):
+    inversion = invertRow(pitch_set)
+    cognate = []
+    transposition = transpose(inversion, 0)
+    for i in range(0, len(inversion) + 1):
+        if isCognate(pitch_set, dyad_sum, transposition):
+            cognate = transposition
+        transposition = transpose(inversion, i)
+    return cognate
 
 
 def swapEveryTwoElements(pitch_set):
@@ -90,14 +96,12 @@ def findAxisNoteDyads(pitch_set):
 
 
 if __name__ == '__main__':
-    cycle7 = generateIntervalSet(Interval.per5)
-    # print(cycle7)
-    # print(invertRow(cycle7))
-    cyclicalSet = generateCyclicalSet(cycle7)
-    cycle7AxisDyads = findAxisNoteDyads(cyclicalSet)
-    print(cyclicalSet)
-    print(generateDyadsOfParticularSum(cyclicalSet, 7))
-    print(generateDyadsOfParticularSum(cyclicalSet, 5))
+    print(generateIntervalSet(Interval.per5), "\n")
+    allCognateSets = generateAllCognateSets()
+
+    for cognate_set in allCognateSets:
+        print(cognate_set, "\n")
+
     # for pitch in cyclicalSet:
     #     print(pitch, cycle7AxisDyads[pitch])
 
